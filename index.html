@@ -408,14 +408,20 @@
 		function createList(){
 			for(var i=0;i<files.length;i++){
 				var li = document.createElement('li')
-				if(files[i].name.indexOf('ape') > -1){
-					li.className = "un"
-					li.setAttribute('onclick','play('+i+')')
-					li.setAttribute('title',files[i].name.split('.')[0]+'(不支持APE格式音频)')
-				}else{
-					li.setAttribute('onclick','play('+i+')')
-					li.setAttribute('title',files[i].name.split('.')[0])
-				}
+                if( files[i].name.indexOf('mp3') > -1 ||
+                    files[i].name.indexOf('wav') > -1 ||
+                    files[i].name.indexOf('aac') > -1 ||
+                    files[i].name.indexOf('m4r') > -1 ||
+                    files[i].name.indexOf('ogg') > -1 ||
+                    files[i].name.indexOf('flac')> -1
+                ){
+                    li.setAttribute('onclick','play('+i+')')
+                    li.setAttribute('title',files[i].name.split('.')[0])
+                }else{
+                    li.className = "un"
+                    li.setAttribute('onclick','play('+i+')')
+                    li.setAttribute('title',files[i].name.split('.')[0]+'(不支持'+files[i].name.split('.')[1].toUpperCase()+'格式的文件)')
+                }
 				li.innerText = files[i].name.split('.')[0]
 				document.getElementById('_list').appendChild(li)
 			}
