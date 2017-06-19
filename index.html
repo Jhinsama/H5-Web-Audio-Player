@@ -87,7 +87,7 @@
     		color: #aaa;
 		}
 		#_list li.un{
-			color: red;
+			color: #d55;
 		}
 		#_list li.on{
 			background-color: rgba(255, 255, 255, .1);
@@ -426,7 +426,6 @@
 				li.innerText = files[i].name.split('.')[0]
 				document.getElementById('_list').appendChild(li)
 			}
-            play()
 			moveList()
 		}
 
@@ -730,8 +729,12 @@
 			        if (detail > 0) {
 			            // 向下滚动
 			            listDOWN()
+			            listDOWN()
+			            listDOWN()
 			        } else {
 			            // 向上滚动
+			            listUP()
+			            listUP()
 			            listUP()
 			        }
 			    });
@@ -742,8 +745,12 @@
 			        if (wheelDelta > 0) {
 			            // 向上滚动
 			            listUP()
+			            listUP()
+			            listUP()
 			        } else {
 			            // 向下滚动
+			            listDOWN()
+			            listDOWN()
 			            listDOWN()
 			        }
 			    }
