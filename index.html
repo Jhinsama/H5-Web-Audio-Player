@@ -378,7 +378,8 @@
 		var AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.mozAudioContext || window.oAudioContext || window.msAudioContext
 
 		var playMode = 0	// 播放模式
-		var renderMode = 0	//canvas渲染模式
+		var renderMode = 0	// canvas渲染模式
+		var loading = 0;	// 当前是否正在加载
 		var num = 0		// 当前播放音乐索引
 		var duration = 0	// 当前播放音乐长度
 		var playPro = 0		// 当前音乐播放进度
@@ -387,7 +388,7 @@
 		var audioContext = new AudioContext(); // 调用音频接口
 		var analyser = audioContext.createAnalyser(); 	// 获取音频频率信息
 		var gainNode = audioContext.createGain();	// 控制音量
-		analyser.fftSize = 512;		// 设置FFT(快速傅里叶变换)
+		analyser.fftSize = 512;		// 设置FFT(快速傅里叶变换) 默认2048
 
 		// 监听文件选择change事件
 		function listenChange(){
@@ -425,6 +426,7 @@
 				li.innerText = files[i].name.split('.')[0]
 				document.getElementById('_list').appendChild(li)
 			}
+            play()
 			moveList()
 		}
 
@@ -450,35 +452,34 @@
 		var audioBufferSourceNode	// 音频数据对象 用于播放音频
 		var animation	// 调用动画 requestAnimationFrame()
 		function play(index,jump,skip){
-			if(!files){
-				return
-			}
-			if(index != num){
-				playPro = 0
-			}
-			if(skip == undefined){
-				skip = 0
-			}
-			if(jump == undefined){
-				jump = 'next'
-			}
+			console.log("play");
+			if(!files){return}
+			loading += 1
+            index = index ? index : 0
+            playPro = index != num ? 0 : playPro
+            skip = skip ? skip : 0
+            jump = jump ? jump : 'next'
 			playIndex(index,jump,skip)
 		}
 
 		// 判断当前播放索引是否正常
 		function playIndex(index,jump,skip){
+			console.log("playIndex");
 			if(index < files.length && index > -1){
 				playTag(index,jump,skip)
 			}else if(index <= -1){
+				loading -= 1
 				play(files.length-1,'prev')
 			}
 			else{
+				loading -= 1
 				play(0,'next')
 			}
 		}
 
 		// 判断当前索引下音乐是否可播放并改变播放中选项样式
 		function playTag(index,jump,skip){
+			console.log("playTag");
 			var liTag = document.getElementsByTagName('li')
 			var className = liTag[index].className
 			for(var i=0;i<liTag.length;i++){
@@ -493,6 +494,7 @@
 				if(jump == 'next'){
 					index += 1
 				}
+				loading -= 1
 				play(index,jump)
 			}else{
 				liTag[index].className = 'on'
@@ -503,6 +505,7 @@
 
 		// 如果已经有播放中的音乐就停止
 		function playState(){
+			console.log("playState");
 			if(audioBufferSourceNode){
 				audioBufferSourceNode.onended = null
 				audioBufferSourceNode.stop();
@@ -513,11 +516,15 @@
 
 		// 开始播放音乐
 		function playing(index,jump,skip){
+			console.log("playing");
 			num = index
 			var fileReader = new FileReader();
 			fileReader.onload = function(e){
 				var file = e.target.result
 				audioContext.decodeAudioData(file, function(buffer) {
+					loading -= 1
+					console.log(loading);
+					if(loading != 0){return}
 					audioBufferSourceNode = audioContext.createBufferSource();
 				    audioBufferSourceNode.connect(gainNode);
 				    gainNode.connect(analyser);
@@ -543,6 +550,7 @@
 
 		// 判断播放模式
 		function playingMode(index,jump){
+			console.log("playingMode");
 			if(playMode == 0){
 				index += 1
 				play(index,jump)
@@ -620,8 +628,8 @@
 			ctx.fillStyle = CLG(0,0,0,height);
 			for (var i = 0; i < meterNum; i++) {
 				var value = array[i * step]; //获取当前能量值
-                value = value==0?1:value
-                value = value==undefined?1:value
+				value = value==0?1:value
+				value = value==undefined?1:value
 				ctx.beginPath()
 				if (capYPositionArray.length < Math.round(meterNum)) {
 					capYPositionArray.push(value); //初始化保存帽头位置的数组，将第一个画面的数据压入其中
@@ -642,40 +650,39 @@
 			}
 		}
 
-		// 画圆形频谱
-        var arcArray=[]
+        // 画圆形频谱
+        var arcArray=[],tick=0
 		function renderArc(array){
-            GCO(9)
-            for(var i=0;i<analyser.fftSize/2;i++){
-                var value = array[i];
-                value = value>50?50:value;
-                if(arcArray[i]==undefined){
-                    var arcObject = {}
-                    arcObject.x = Math.random()*width
-                    arcObject.y = Math.random()*height
-                    arcObject.value = value
-                    arcArray.push(arcObject)
-                }
-                if(arcArray[i].value > 45 && Math.round(arcArray[i].value-value) < 3){
-                    arcArray[i].y-=1
-                    if(arcArray[i].y < 0){
-                        arcArray[i].x = Math.random()*width
-                        arcArray[i].y=height
-                    }
-                }else{
-                    arcArray[i].y+=1
-                    if(arcArray[i].y > height){
-                        arcArray[i].x = Math.random()*width
-                        arcArray[i].y=0
-                    }
-                }
-                ctx.fillStyle = CRG(arcArray[i].x,arcArray[i].y,0,arcArray[i].x,arcArray[i].y,value)
-                ctx.beginPath()
-                ctx.arc(arcArray[i].x, arcArray[i].y, value, 0, 360, false)
-                ctx.closePath()
-                ctx.fill()
-            }
+			tick+=1
+			if(tick==314){tick=-tick}
+			for(var i=0;i<analyser.fftSize/2;i++){
+				if(arcArray[i] == undefined){
+					var arcObj = {
+						x:Math.random() * (width + 120) - 60,
+						y:height + array[i] * 0.2 + 5,
+						size: array[i] * 0.2 + 5,
+						velocity: 2 - Math.random() * 4
+					}
+					arcArray.push(arcObj)
+				}else{
+					arcArray[i].x += (arcArray[i].velocity + Math.sin(tick * 0.01) * 1.5)
+					arcArray[i].y -= Math.pow(array[i]*0.01, 2)
+					arcArray[i].size = array[i]*0.2+5
+					if(arcArray[i].y < -arcArray[i].size || arcArray[i].x < -60 || arcArray[i].x > width + 60){
+						arcArray[i].x=Math.random() * (width + 120) - 60
+						arcArray[i].y=height+array[i]*0.2+5
+						arcArray[i].size = array[i]*0.2+5
+						arcArray[i].velocity = 2 - Math.random() * 4
+					}
+				}
+				ctx.beginPath()
+				ctx.fillStyle = 'hsla('+ (i/analyser.fftSize*600+Math.abs(tick)/314*60) +','+array[i]*0.35+'%,50%,'+array[i]*0.003+')'
+				ctx.arc(arcArray[i].x, arcArray[i].y, arcArray[i].size, 0, 360)
+				ctx.closePath()
+				ctx.fill()
+			}
 		}
+
 
 		// 画线型频谱
 		function renderLine(array){
