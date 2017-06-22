@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8" />
-	<title>音乐播放器</title>
+	<title>░Audio&Canvas░Jhin░</title>
 	<style>
 		*{
 			box-sizing: border-box;
@@ -16,15 +16,15 @@
 			margin: 0;
 		}
 		.show_list{
-			width: 10px;
-			height: calc(100% - 80px);
-			position: fixed;
-			top: 0;
-			right: 0;
-			z-index: 2016;
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			position: fixed;
+			top: 0;
+			right: 0;
+			width: 10px;
+			height: calc(100% - 80px);
+			z-index: 2016;
 		}
 		.show_list>div{
 			width: 10px;
@@ -40,34 +40,33 @@
 			border-right: solid 8px #fff;
 		}
 		.list_box{
-			width: 350px;
-			height: calc(100% - 80px);
+			overflow: hidden;
 			position: fixed;
 			top: 0;
 			right: -350px;
+			width: 350px;
+			height: calc(100% - 80px);
 			background-color: rgba(255, 255, 255, .1);
 			z-index: 2017;
-			/* overflow: hidden; */
-			overflow: auto;
 		}
 		.file_back{
-			width: calc(100% - 20px);
-			height: 50px;
-			background-color: #dfd;
+			overflow: hidden;
 			position: relative;
 			top: 10px;
 			left: 10px;
+			width: calc(100% - 20px);
+			height: 50px;
+			background-color: #dfd;
 			text-align: center;
 			line-height: 50px;
-			overflow: hidden;
 			transition: .3s;
 		}
 		#myfiles{
-			width: 100%;
-			height: 100%;
 			position: absolute;
 			top: 0;
 			left: 0;
+			width: 100%;
+			height: 100%;
 			opacity: 0;
 		}
 		#_list{
@@ -78,10 +77,10 @@
 			list-style:none;
 		}
 		#_list li{
-			margin-top: 0;
-			padding: 0 20px;
 			width: 100%;
 			height: 30px;
+			margin-top: 0;
+			padding: 0 20px;
 			white-space:nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
@@ -105,56 +104,56 @@
 			color: #A5EE3D;
 		}
 		#background{
-			width: 100%;
-			height: 100%;
-			background-color: #333;
 			position: absolute;
 			top: 0;
 			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: #333;
 			z-index: -1;
 		}
 		.console{
-			border-top: solid 1px #333;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			position: fixed;
 			left: 0;
 			bottom: 0;
-			z-index: 2017;
 			width: 100%;
 			height: 80px;
 			background-color: rgba(255, 255, 255, .1);
-			display: flex;
-			align-items: center;
-			justify-content: center;
+			border-top: solid 1px #333;
+			z-index: 2017;
 		}
 		.control{
-			flex-shrink: 0;
-			margin: 10px;
-			width: 50px;
-			height: 50px;
-			border-radius: 50%;
-			border: solid 3px #fff;
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			flex-shrink: 0;
+			width: 50px;
+			height: 50px;
+			margin: 10px;
+			border-radius: 50%;
+			border: solid 3px #fff;
 		}
 		.control>div{
 			width: 20px;
 			height: 24px;
+			margin-left: 5px;
 			border-top: solid 12px transparent;
 			border-bottom: solid 12px transparent;
 			border-left: solid 20px #fff;
 			border-right: solid 0 #fff;
-			margin-left: 5px;
 			transition: .3s;
 		}
 		.control>div.on{
 			width: 25px;
 			height: 25px;
+			margin-left: 0;
 			border-top: solid 0 transparent;
 			border-bottom: solid 0 transparent;
 			border-left: solid 8px #fff;
 			border-right: solid 8px #fff;
-			margin-left: 0;
 		}
 		.control:hover{
 			border: solid 3px #0f0;
@@ -168,22 +167,22 @@
 		}
 
 		.prev,.next{
-			flex-shrink: 0;
-			margin: 10px;
-			width: 40px;
-			height: 40px;
-			border-radius: 50%;
-			border: solid 2px #fff;
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			flex-shrink: 0;
+			width: 40px;
+			height: 40px;
+			margin: 10px;
+			border-radius: 50%;
+			border: solid 2px #fff;
 		}
 		.prev>div,.next>div{
+			position: relative;
 			width: 12px;
 			height: 16px;
 			border-top: solid 8px transparent;
 			border-bottom: solid 8px transparent;
-			position: relative;
 		}
 		.prev>div{
 			border-left: solid 0 #fff;
@@ -191,12 +190,12 @@
 		}
 		.prev>div:before{
 			content: '';
-			width: 3px;
-			height: 16px;
-			background-color: #fff;
 			position: absolute;
 			top: -8px;
 			right: 0;
+			width: 3px;
+			height: 16px;
+			background-color: #fff;
 		}
 		.next>div{
 			border-left: solid 12px #fff;
@@ -204,12 +203,12 @@
 		}
 		.next>div:after{
 			content: '';
-			width: 3px;
-			height: 16px;
-			background-color: #fff;
 			position: absolute;
 			top: -8px;
 			left: 0;
+			width: 3px;
+			height: 16px;
+			background-color: #fff;
 		}
 		.prev:hover,.next:hover{
 			border: solid 2px #0f0;
@@ -229,22 +228,22 @@
 			background-color: #0f0;
 		}
 		.mode{
+			overflow: hidden;
 			flex-shrink: 0;
-			margin: 10px;
 			width: 120px;
 			height: 30px;
+			margin: 10px;
 			background: #fff;
 			border-radius: 5px;
-			overflow: hidden;
 			box-shadow: 0 0 3px #999;
 		}
 		.mode div{
-			float: left;
-			width: 40px;
-			height: 30px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			float: left;
+			width: 40px;
+			height: 30px;
 		}
 		.mode div:nth-child(2){
 			border-left: solid 1px #dfdfdf;
@@ -261,29 +260,18 @@
 			height: 20px;
 		}
 		.console input{
-			margin: 10px;
 			flex-grow: 1;
+			margin: 10px;
 		}
 		input[type=range] {
 			-webkit-appearance: none;
 			width: 100%;
 			border-radius: 2px;
 		}
-		input[type=range]::-webkit-slider-thumb {
-			-webkit-appearance: none;
-		}
 		input[type=range]::-webkit-slider-runnable-track {
 			height: 4px;
 			border-radius: 2px;
 			background: rgba(4,154,12,0.2);
-		}
-		input[type=range]::-moz-range-progress {
-			height: 4px;
-			border-radius: 2px;
-			background: rgba(4,154,12,0.2);
-		}
-		input[type=range]:focus {
-			outline: none;
 		}
 		input[type=range]::-webkit-slider-thumb {
 			-webkit-appearance: none;
@@ -294,6 +282,23 @@
 			border-radius: 50%;
 			box-shadow: 0 0 8px #ddd;
 		}
+		input[type=range]::-moz-range-trac {
+			height: 4px;
+			border-radius: 2px;
+			background: rgba(4,154,12,0.2);
+		}
+		input[type=range]::-moz-range-thumb {
+			-moz-appearance: none;
+			height: 14px;
+			width: 14px;
+			margin-top: -5px;
+			background: #03a748;
+			border-radius: 50%;
+			box-shadow: 0 0 8px #ddd;
+		}
+		input[type=range]:focus {
+			outline: none;
+		}
 		@media screen and (max-width: 780px){
 			.console input{
 				display: none;
@@ -301,8 +306,8 @@
 		}
 		@media screen and (max-width: 480px){
 			.mode{
-				width: 40px;
 				position: relative;
+				width: 40px;
 			}
 			.mode>div.on{
 				position:absolute;
@@ -311,8 +316,8 @@
 				z-index: 1;
 			}
 			.mode:hover{
-				margin-top: -50px;
 				height: 90px;
+				margin-top: -50px;
 			}
 			.mode:hover>div.on{
 				position: static;
@@ -357,13 +362,13 @@
 		</div>
 		<input type="range" class="vol" value="100" min="0" max="100" onchange="gainValue(this.value)">
 		<div class="mode render_mode">
-			<div class="on" onclick="renderMode=0;setMode(this)">
+			<div class="on" onclick="drawMode=0;setMode(this)">
 				<img src="">
 			</div>
-			<div onclick="renderMode=1;setMode(this)">
+			<div onclick="drawMode=1;setMode(this)">
 				<img src="">
 			</div>
-			<div onclick="renderMode=2;setMode(this)">
+			<div onclick="drawMode=2;setMode(this)">
 				<img src="">
 			</div>
 		</div>
@@ -379,7 +384,7 @@
 		var AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.mozAudioContext || window.oAudioContext || window.msAudioContext
 
 		var playMode = 0	// 播放模式
-		var renderMode = 0	// canvas渲染模式
+		var drawMode = 0	// canvas渲染模式
 		var loading = 0;	// 当前是否正在加载
 		var num = 0		// 当前播放音乐索引
 		var duration = 0	// 当前播放音乐长度
@@ -712,13 +717,13 @@
 			var array = new Uint8Array(analyser.frequencyBinCount);
 			analyser.getByteFrequencyData(array);
 			ctx.clearRect(0, 0, width, height); //清理画布准备画画
-			if(renderMode == 0){
+			if(drawMode == 0){
 				renderRect(array)
 			}
-			if(renderMode == 1){
+			if(drawMode == 1){
 				renderArc(array)
 			}
-			if(renderMode == 2){
+			if(drawMode == 2){
 				renderLine(array)
 			}
 			animation = requestAnimationFrame(render);

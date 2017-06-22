@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>░Audio&Canvas░Jhin░</title>
+<style>
+/*reset************************************************/
+	*{
+		box-sizing: border-box;
+	}
+	html{
+		overflow: hidden;
+		height: 100%;
+	}
+	body{
+		height: 100%;
+		margin: 0;
+	}
+/*view*************************************************/
+	#view{
+		position: relative;
+		width: 100%;
+		min-width: 350px;
+		height: 100%;
+background-color: #333;
+	}
+	#view.opal{
+background-color: #f9f7ec;
+	}
+/*my-files*********************************************/
+	.select-file,#cancel-file{
+		position: absolute;
+		top: 20px;
+		left: 20px;
+		width: 80px;
+		height: 80px;
+background-color: #f00;
+		border-radius: 50%;
+		text-align: center;
+		line-height: 80px;
+color: #fff;
+		opacity: 0;
+		transition: 200ms;
+	}
+	.select-file{
+		animation: hiddenBtn 1.5s ease;
+		-webkit-animation: hiddenBtn 1.5s ease;
+	}
+	#cancel-file{
+		display: none;
+	}
+	.select-file:hover{
+		opacity: 0.9;
+	}
+	#cancel-file:hover{
+		opacity: 0.9;
+	}
+	.select-file:active{
+		line-height: 70px;
+border: solid 5px rgba(120, 120, 255, 0.5);
+	}
+	#cancel-file:active{
+		line-height: 70px;
+border: solid 5px rgba(120, 120, 255, 0.5);
+	}
+	.select-file input{
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+	}
+	.select-file input:focus{
+		outline: none;
+	}
+/*my-list**********************************************/
+	.my-list{
+		position: absolute;
+		top: 0;
+		right: -375px;
+		width: 375px;
+		height: calc(100% - 80px);
+		padding: 20px 0 20px 20px;
+background-color: rgba(255, 255, 255, .1);
+		transition: 350ms;
+		animation: hiddenList 1.5s ease;
+		-webkit-animation: hiddenList 1.5s ease;
+	}
+	.my-list:hover{
+		right: -25px;
+	}
+	.my-list::after{
+		content: '';
+		position: absolute;
+		top: 0;
+		right: 100%;
+		width: 20px;
+		height: 100%;
+	}
+	#list{
+		overflow-x: hidden;
+		overflow-y: auto;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0 25px 0 0;
+		line-height: 30px;
+		list-style:none;
+	}
+	#list li{
+		width: 100%;
+		height: 30px;
+		margin: 0;
+		padding: 0;
+		white-space:nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+color: #aaa;
+	}
+	#list li.un{
+color: #d55;
+	}
+	#list li.on{
+background-color: rgba(255, 255, 255, .1);
+color: #a5ee3d;
+	}
+	#list li:hover{
+background-color: rgba(255, 255, 255, .1);
+color: #fff;
+	}
+	#list li.un:hover{
+color: #f00;
+	}
+	#list li.on:hover{
+color: #a5ee3d;
+	}
+/*my-console*******************************************/
+	.my-console{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		height: 80px;
+background-color: rgba(255, 255, 255, .1);
+border-top: solid 1px #333;
+	}
+	.seize{
+		display: none;
+		width: 0;
+		height: 0;
+		margin: 10px;
+	}
+	/*Mode-button**********************************/
+	.mode{
+		overflow: hidden;
+		flex-shrink: 0;
+		width: 120px;
+		height: 30px;
+		margin: 10px;
+background-color: #fff;
+		border-radius: 5px;
+box-shadow: 0 0 3px #999;
+	}
+	.mode div{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		float: left;
+		width: 40px;
+		height: 30px;
+	}
+	.mode div:nth-child(2){
+border-left: solid 1px #dfdfdf;
+border-right: solid 1px #dfdfdf;
+	}
+	.mode div.on{
+box-shadow: inset 0 0 5px #fff;
+background-color: #eee;
+	}
+	.mode div:hover{
+background-color: #eee;
+	}
+	.mode div img{
+		height: 20px;
+	}
+	/*input[type=range]****************************/
+	.range{
+		flex-grow: 1;
+		margin: 10px;
+		border-radius: 2px;
+		-webkit-appearance: none;
+	}
+	.range:focus{
+		outline: none;
+	}
+	.range::-webkit-slider-thumb{
+		height: 14px;
+		width: 14px;
+		margin-top: -5px;
+background-color: #03a748;
+		border-radius: 50%;
+box-shadow: 0 0 8px #ddd;
+		-webkit-appearance: none;
+	}
+	.range::-webkit-slider-runnable-track{
+		height: 4px;
+		border-radius: 2px;
+background-color: rgba(4,154,12,0.2);
+	}
+	.range::-moz-range-thumb{
+		height: 14px;
+		width: 14px;
+		margin-top: -5px;
+background-color: #03a748;
+		border-radius: 50%;
+box-shadow: 0 0 8px #ddd;
+		-moz-appearance: none;
+	}
+	.range::-moz-range-trac{
+		height: 4px;
+		border-radius: 2px;
+background-color: rgba(4,154,12,0.2);
+	}
+	/*control**************************************/
+	.audio-control{
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-shrink: 0;
+		width: 190px;
+		height: 70px;
+	}
+	.audio-control div{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin: 10px;
+		border-radius: 50%;
+	}
+	#play-pause{
+		width: 50px;
+		height: 50px;
+border: solid 3px #fff;
+	}
+	#play-pause::before{
+		content: '';
+		width: 20px;
+		height: 24px;
+		margin-left: 5px;
+		border-top: solid 12px transparent;
+		border-bottom: solid 12px transparent;
+border-left: solid 20px #fff;
+border-right: solid 0 #fff;
+		box-sizing: border-box;
+		transition: .3s;
+	}
+	#play-pause.on::before{
+		content: '';
+		width: 23px;
+		height: 25px;
+		margin-left: 0;
+		border-top: solid 0 transparent;
+		border-bottom: solid 0 transparent;
+border-left: solid 8px #fff;
+border-right: solid 8px #fff;
+	}
+	#play-pause:hover{
+border: solid 3px #0f0;
+	}
+	#play-pause:active::before{
+border-left: solid 20px #0f0;
+	}
+	#play-pause.on:active::before{
+border-left: solid 8px #0f0;
+border-right: solid 8px #0f0;
+	}
+	#prev,#next{
+		width: 40px;
+		height: 40px;
+border: solid 2px #fff;
+	}
+	#prev::before,#next::after{
+		content: '';
+		width: 3px;
+		height: 16px;
+background-color: #fff;
+		box-sizing: border-box;
+	}
+	#prev::after,#next::before{
+		content: '';
+		width: 12px;
+		height: 16px;
+		border-top: solid 8px transparent;
+		border-bottom: solid 8px transparent;
+		box-sizing: border-box;
+	}
+	#prev::after{
+border-left: solid 0 #fff;
+border-right: solid 12px #fff;
+	}
+	#next::before{
+border-left: solid 12px #fff;
+border-right: solid 0 #fff;
+	}
+	#prev:hover,#next:hover{
+border: solid 2px #0f0;
+	}
+	#prev:active::before,#next:active::after{
+background-color: #0f0;
+	}
+	#prev:active::after{
+border-left: solid 0 #0f0;
+border-right: solid 12px #0f0;
+	}
+	#next:active::before{
+border-left: solid 12px #0f0;
+border-right: solid 0 #0f0;
+	}
+/*@media***********************************************/
+	@media screen and (max-width: 780px){
+		.seize{
+			display: block;
+		}
+		.range{
+			display: none;
+		}
+	}
+	@media screen and (max-width: 480px){
+		.mode{
+			position: relative;
+			width: 40px;
+		}
+		.mode div.on{
+			position:absolute;
+			top: 0;
+			left: 0;
+		}
+		.mode:hover{
+			height: 90px;
+			margin-top: -50px;
+		}
+		.mode:hover>div.on{
+			position: static;
+		}
+	}
+/*animate**********************************************/
+	@keyframes hiddenList{
+		0%{right: -375px;}
+		10%{right: -25px;}
+		60%{right: -25px;}
+		100%{right: -375px;}
+	}
+	@keyframes hiddenBtn{
+		0%{opacity: 0;}
+		10%{opacity: 1;}
+		60%{opacity: .8;}
+		100%{opacity: 0;}
+	}
+</style>
+</head>
+<body>
+	<div id="view">
+		<div class="select-file">
+			Files
+			<input id="my-files" type="file" multiple>
+		</div>
+		<div id="cancel-file">Cancel</div>
+		<div class="my-list">
+			<ul id="list"></ul>
+		</div>
+		<div class="my-console">
+			<div class="seize"></div>
+			<div id="play-mode" class="mode">
+				<div class="on"><img src="images/play0.png"></div>
+				<div><img src="images/play1.png"></div>
+				<div><img src="images/play2.png"></div>
+			</div>
+			<input id="pro" class="range" type="range" min="0" max="100" value="0"/>
+			<div class="audio-control">
+				<div id="prev"></div>
+				<div id="play-pause"></div>
+				<div id="next"></div>
+			</div>
+			<input id="vol" class="range" type="range" min="0" max="100" value="100" />
+			<div id="draw-mode" class="mode">
+				<div class="on"><img src="images/draw0.png"></div>
+				<div><img src="images/draw1.png"></div>
+				<div><img src="images/draw2.png"></div>
+			</div>
+			<div class="seize"></div>
+		</div>
+		<audio id="my-audio"></audio>
+		<canvas id="my-canvas"></canvas>
+	</div>
+</body>
+<script>
+function App(){
+	this.view = document.getElementById('view');
+	this.listBox = document.getElementById('list');
+	this.prevBtn = document.getElementById('prev');
+	this.nextBtn = document.getElementById('next');
+	this.proRange = document.getElementById('pro');
+	this.volRange = document.getElementById('vol');
+	this.audioDom = document.getElementById('my-audio');
+	this.inputFile = document.getElementById('my-files');
+	this.canvasDom = document.getElementById('my-canvas');
+	this.controlBtn = document.getElementById('play-pause');
+	this.cancelFiles = document.getElementById('cancel-file');
+	this.playModeBtns = document.getElementById('play-mode').getElementsByTagName('div');
+	this.drawModeBtns = document.getElementById('draw-mode').getElementsByTagName('div');
+	this.init();
+};
+App.prototype.init = function(){
+	var self = this;
+	this.prevBtn.addEventListener('click',function(){
+		self.prevSong();
+	});
+	this.nextBtn.addEventListener('click',function(){
+		self.nextSong();
+	});
+	this.controlBtn.addEventListener('click',function(){
+		self.setState();
+	});
+	this.volRange.addEventListener('change',function(){
+		self.setVolume();
+	});
+	this.proRange.addEventListener('change',function(){
+		self.setProgress();
+	});
+	this.proRange.addEventListener('mousedown',function(){
+		self.focusPro = true;
+	});
+	this.proRange.addEventListener('mouseup',function(){
+		self.focusPro = false;
+	});
+	this.inputFile.addEventListener('change',function(){
+		self.filesChange();
+	});
+	this.cancelFiles.addEventListener('click',function(){
+		self.clearFlies();
+	});
+	for(var i=0;i<this.playModeBtns.length;i++){
+		this.playModeBtns[i].setAttribute('data-i',i);
+		this.playModeBtns[i].addEventListener('click',function(){
+			self.setPlayMode(this);
+		});
+	};
+	for(var i=0;i<this.drawModeBtns.length;i++){
+		this.drawModeBtns[i].setAttribute('data-i',i);
+		this.drawModeBtns[i].addEventListener('click',function(){
+			self.setDrawMode(this);
+		});
+	};
+	this.initCanvas();
+	this.initAudio();
+	this.initList();
+	this.resize();
+};
+App.prototype.initList = function(){
+	this.defaultSong = [
+		{
+			name: 'JPB - High.mp3',
+			src:'./music/JPB - High.mp3'
+		},
+		{
+			name: 'Panda Eyes - Love Game.mp3',
+			src:'./music/Panda Eyes - Love Game.mp3'
+		},
+		{
+			name: 'TheFatRat - Time Lapse.mp3',
+			src:'./music/TheFatRat - Time Lapse.mp3'
+		}
+	];
+	this.createList(this.defaultSong);
+}
+App.prototype.initAudio = function(){
+	var self = this;
+	this.playMode = 0;
+	this.currentSong = 0;
+	this.interval = undefined;
+	this.audioContext = new AudioContext();
+	this.analyser = this.audioContext.createAnalyser();
+	this.sources = this.audioContext.createMediaElementSource(this.audioDom);
+	this.sources.connect(this.analyser);
+	this.analyser.connect(this.audioContext.destination);
+	this.analyser.fftSize = 512;
+	this.bufferLenght = this.analyser.frequencyBinCount;
+	this.frequencyData = new Uint8Array(this.bufferLenght);
+	this.audioDom.onloadStart = function(){
+		console.log("开始加载");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.ondurationchange = function(){
+		console.log("媒体时长改变");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.onloadedmetadata = function(){
+		console.log("元数据加载完成");
+	};
+	this.audioDom.onloadeddata = function(){
+		console.log("当前帧加载完成");
+	};
+	this.audioDom.onprogress = function(){
+		console.log("下载指定的数据");
+	};
+	this.audioDom.oncanplay = function(){
+		console.log("可以开始播放");
+		self.audioDom.play();
+	};
+	this.audioDom.oncanplaythrough = function(){
+		console.log("可以正常播放且无需停顿");
+	};
+	this.audioDom.onended = function(){
+		console.log("播放结束");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+		if(self.playMode == 0){
+			self.play(self.currentSong+1);
+		}else if(self.playMode == 1){
+			self.play(self.currentSong);
+		}else{
+			var files = self.inputFile.files;
+			var index = Math.random();
+			if(files.length == 0){
+				index = Math.round(index*self.defaultSong.length);
+			}else{
+				index = Math.round(index*files.length);
+			};
+			index = index == self.currentSong ? (index + 1) : index;
+			self.play(index);
+		};
+	};
+	this.audioDom.onerror = function(){
+		console.log("数据加载出错");
+		self.controlBtn.className = '';
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.onpause = function(){
+		console.log("暂停");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.onplay = function(){
+		console.log("准备开始播放");
+	};
+	this.audioDom.onplaying = function(){
+		console.log("播放中");
+		self.draw();
+		self.order = false;
+		self.controlBtn.className = 'on';
+		self.interval = setInterval(function(){
+			if(!self.focusPro){
+				var pro = self.audioDom.currentTime / self.audioDom.duration;
+				self.proRange.value = pro*100;
+			};
+		},1000);
+	};
+	this.audioDom.onratechange = function(){
+		console.log("播放速度发生改变");
+	};
+	this.audioDom.onseeked = function(){
+		console.log("完成定位播放位置");
+	};
+	this.audioDom.onseeking = function(){
+		console.log("开始定位播放位置");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.onvolumechange = function(){
+		console.log("音量发生改变");
+	};
+	this.audioDom.onwaiting = function(){
+		console.log("播放下一帧需要缓冲");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.onstalled = function(){
+		console.log("获取数据且数据不可用");
+	};
+	this.audioDom.onsuspend = function(){
+		console.log("读取数据中止");
+	};
+	this.audioDom.onemptied = function(){
+		console.log("复位到初始状态");
+		clearInterval(self.interval);
+		cancelAnimationFrame(self.animation);
+	};
+	this.audioDom.onencrypted = function(){
+		console.log("遇到加密的数据");
+	};
+};
+App.prototype.initCanvas = function(){
+	this.drawMode = 0;
+	this.context = this.canvasDom.getContext("2d");
+	this.animation = undefined;
+};
+App.prototype.resize = function(){
+	this.viewSize = {
+		width: this.view.offsetWidth,
+		height: this.view.offsetHeight
+	};
+	this.canvasDom.width = this.viewSize.width;
+	this.canvasDom.height = this.viewSize.height;
+	this.initRectData();
+	this.initArcData();
+};
+App.prototype.prevSong = function(){
+	console.log("prev");
+	this.order = true;
+	this.play(this.currentSong-1);
+};
+App.prototype.nextSong = function(){
+	console.log("next");
+	this.play(this.currentSong+1);
+};
+App.prototype.setState = function(){
+	console.log("play||pause");
+	var state = this.audioDom.paused;
+	if(state){
+		if(!this.audioDom.src){
+			this.play(0);
+		}else{
+			this.audioDom.play();
+		};
+	}else{
+		this.audioDom.pause();
+		this.controlBtn.className = '';
+	};
+};
+App.prototype.setVolume = function(){
+	console.log("volume");
+	var value = this.volRange.value / 100;
+	this.audioDom.volume = value;
+};
+App.prototype.setProgress = function(){
+	console.log("progress");
+	var value = this.proRange.value / 100;
+	this.audioDom.currentTime = value*this.audioDom.duration;
+};
+App.prototype.filesChange = function(){
+	if(this.inputFile.files.length == 0)return;
+	console.log("filesChange");
+	this.createList(this.inputFile.files);
+	this.cancelFiles.style.display = 'block';
+};
+App.prototype.setPlayMode = function(dom){
+	var index = parseInt(dom.getAttribute('data-i'));
+	if(this.playMode == index)return;
+	console.log('playMode '+index);
+	this.playModeBtns[this.playMode].className = '';
+	this.playMode = index;
+	this.playModeBtns[this.playMode].className = 'on';
+};
+App.prototype.setDrawMode = function(dom){
+	var index = parseInt(dom.getAttribute('data-i'));
+	if(this.drawMode == index)return;
+	console.log('drawMode '+index);
+	this.drawModeBtns[this.drawMode].className = '';
+	this.drawMode = index;
+	this.drawModeBtns[this.drawMode].className = 'on';
+	switch(index){
+		case 0:
+			this.view.className = '';
+			break;
+		case 1:
+			this.view.className = 'opal';
+			break;
+		case 2:
+			this.view.className = '';
+			break;
+	}
+};
+App.prototype.clearFlies = function(dom){
+	console.log('clearFlies');
+	this.currentSong = 0;
+	this.inputFile.value = '';
+	this.createList(this.defaultSong);
+	this.cancelFiles.style.display = 'none';
+};
+App.prototype.play = function(index){
+	index = this.testPlayIndex(parseInt(index));
+	this.listArray[this.currentSong].className = '';
+	this.currentSong = index;
+	this.listArray[this.currentSong].className = 'on';
+	var files = this.inputFile.files;
+	if(files.length == 0){
+		this.audioDom.src = this.defaultSong[index].src;
+	}else{
+		this.audioDom.src = window.URL.createObjectURL(files[index]);
+	};
+};
+App.prototype.createList = function(files){
+	var self = this;
+	this.listBox.innerHTML = '';
+	this.listArray = [];
+	for(var i=0;i<files.length;i++){
+		var li = document.createElement('li');
+		var name = files[i].name.split('.');
+		var format = name.pop().toUpperCase();
+		name = name.join('.');
+		if(	format == 'MP3' || format == 'WAV' ||
+			format == 'AAC' || format == 'M4R' ||
+			format == 'OGG' || format == 'FLAC'
+		){
+			li.setAttribute('title',name);
+			li.setAttribute('data-i',i);
+		}else{
+			li.className = "un";
+			li.setAttribute('title',name+'(不支持'+format+'格式的文件)');
+			li.setAttribute('data-i',i);
+		};
+		li.innerText = name;
+		li.addEventListener('click',function(){
+			self.play(this.getAttribute('data-i'));
+		});
+		this.listBox.appendChild(li);
+		this.listArray.push(li);
+	};
+};
+App.prototype.testPlayIndex = function(index){
+	var files = this.inputFile.files;
+	if(files.length == 0){
+		if(index >= this.defaultSong.length){
+			index = 0;
+		}else if(index < 0){
+			index = this.defaultSong.length-1;
+		};
+	}else{
+		if(index >= files.length){
+			index = 0;
+		}else if(index < 0){
+			index = files.length-1;
+		};
+	};
+	if(this.listArray[index].className == 'un'){
+		if(this.order){
+			return this.testPlayIndex(index-1);
+		}else{
+			return this.testPlayIndex(index+1);
+		};
+	}else{
+		return index;
+	};
+};
+App.prototype.initRectData = function(){
+	this.meterNum = Math.floor(this.viewSize.width / 12);
+	this.step = Math.round(this.bufferLenght / this.meterNum);
+	this.ratio = {
+		top:this.viewSize.height * .382 / 255,
+		bottom:this.viewSize.height * .618 / 255
+	};
+	this.capArray = [];
+	for(var i=0;i<this.meterNum;i++){
+		this.capArray.push(0);
+	};
+	this.lg = this.context.createLinearGradient(0,0,0,this.viewSize.height);
+	this.lg.addColorStop(0, 'rgb(0,0,255)');
+	this.lg.addColorStop(0.5, 'rgb(0,255,0)');
+	this.lg.addColorStop(1, 'rgb(255,0,0)');
+};
+App.prototype.drawRect = function(array){
+	this.context.fillStyle = this.lg;
+	for(var i=0;i<this.meterNum;i++){
+		var value = array[i * this.step];
+		value = value  ? value : 1;
+		this.context.beginPath();
+		if(value < this.capArray[i]){
+			if(this.capArray[i] > 0){
+				this.context.fillRect(i * 12,this.viewSize.height - (this.capArray[i]--) * this.ratio.bottom - 2,10,2);
+				this.context.fillRect(this.viewSize.width - (i + 1) * 12,(this.capArray[i]--) * this.ratio.top,10,2);
+			};
+		}else{
+			this.context.fillRect(i * 12,this.viewSize.height - value * this.ratio.bottom,10,2);
+			this.context.fillRect(this.viewSize.width - (i + 1) * 12,value * this.ratio.top,10,2);
+			this.capArray[i] = value;
+		};
+		this.context.fillRect(i * 12,this.viewSize.height - value * this.ratio.bottom,10,value * this.ratio.bottom);
+		this.context.fillRect(this.viewSize.width - (i + 1) * 12,0,10,value * this.ratio.top);
+		this.context.closePath();
+	};
+};
+App.prototype.initArcData = function(){
+	this.arcArray=[];
+	this.tick = 0;
+	for(var i=0;i<this.bufferLenght;i++){
+		var arcObj = {
+			x:Math.random() * (this.viewSize.width + 120) - 60,
+			y:this.viewSize.height,
+			size:0,
+			velocity:2 - Math.random() * 4
+		};
+		this.arcArray.push(arcObj);
+	};
+};
+App.prototype.drawArc = function(array){
+	this.tick++;
+	if(this.tick == 314){this.tick = -this.tick};
+	for(var i=0;i<this.bufferLenght;i++){
+		this.arcArray[i].x += (this.arcArray[i].velocity + Math.sin(this.tick * 0.01) * 1.5);
+		this.arcArray[i].y -= Math.pow(array[i] * 0.01,2);
+		this.arcArray[i].size = array[i] * 0.2 + 5;
+		if(	this.arcArray[i].y < -this.arcArray[i].size ||
+			this.arcArray[i].x < -60 ||
+			this.arcArray[i].x > this.viewSize.width + 60
+		){
+			this.arcArray[i].x=Math.random() * (this.viewSize.width + 120) - 60;
+			this.arcArray[i].y=this.viewSize.height + array[i] * 0.2 + 5;
+			this.arcArray[i].size = array[i] * 0.2 + 5;
+			this.arcArray[i].velocity = 2 - Math.random() * 4;
+		};
+		this.context.beginPath();
+		this.context.fillStyle = 'hsla('+ (i/this.bufferLenght*300+Math.abs(this.tick)/314*60) +','+array[i]*0.35+'%,50%,'+array[i]*0.003+')';
+		this.context.arc(this.arcArray[i].x,this.arcArray[i].y,this.arcArray[i].size,0,360);
+		this.context.closePath();
+		this.context.fill();
+	};
+};
+App.prototype.drawLine = function(array){
+	this.context.beginPath();
+	this.context.strokeStyle = 'rgb(0,255,0)';
+	this.context.moveTo(0,this.viewSize.height/2);
+	for (var i = 0; i < this.meterNum; i++) {
+		var value = 0;
+		if(i % 2 == 0){
+			value = array[i * this.step / 2];
+			this.context.lineTo((i+1)*12,this.viewSize.height/2-value);
+		}else{
+			value = array[this.meterNum - i];
+			this.context.lineTo((i+1)*12,this.viewSize.height/2+value);
+		};
+	};
+	this.context.lineTo(this.viewSize.width,this.viewSize.height/2);
+	this.context.stroke();
+	this.context.closePath();
+};
+App.prototype.draw = function(){
+	this.analyser.getByteFrequencyData(this.frequencyData);
+	this.context.clearRect(0,0,this.viewSize.width,this.viewSize.height);
+	switch(this.drawMode){
+		case 0:
+			this.drawRect(this.frequencyData);
+			break;
+		case 1:
+			this.drawArc(this.frequencyData);
+			break;
+		case 2:
+			this.drawLine(this.frequencyData);
+			break;
+	};
+	this.animation = requestAnimationFrame(this.draw.bind(this));
+};
+window.onload = function(){
+	var app = new App;
+	window.onresize = function(){
+		app.resize();
+	};
+};
+</script>
+</html>
