@@ -490,7 +490,7 @@ App.prototype.initAudio = function(){
 	this.analyser.fftSize = 512;
 	this.bufferLenght = this.analyser.frequencyBinCount;
 	this.frequencyData = new Uint8Array(this.bufferLenght);
-	this.audioDom.onloadStart = function(){
+	this.audioDom.onloadstart = function(){
 		console.log("开始加载");
 		clearInterval(self.interval);
 		cancelAnimationFrame(self.animation);
