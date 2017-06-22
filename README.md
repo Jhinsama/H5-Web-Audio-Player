@@ -46,11 +46,11 @@ audio.currentTime	// 设置或返回音频中的当前播放位置（以秒计�
 audio.defaultMuted	// 设置或返回音频默认是否静音。
 audio.defaultPlaybackRate	// 设置或返回音频的默认播放速度。
 audio.duration		// 返回音频的长度（以秒计）。
-audio.ended			// 返回音频的播放是否已结束。
-audio.error			// 返回表示音频错误状态的 MediaError 对象。
-audio.loop			// 设置或返回音频是否应在结束时再次播放。
+audio.ended 		// 返回音频的播放是否已结束。
+audio.error 		// 返回表示音频错误状态的 MediaError 对象。
+audio.loop  		// 设置或返回音频是否应在结束时再次播放。
 audio.mediaGroup	// 设置或返回音频所属媒介组合的名称。
-audio.muted			// 设置或返回是否关闭声音。
+audio.muted 		// 设置或返回是否关闭声音。
 audio.networkState	// 返回音频的当前网络状态。
 audio.paused		// 设置或返回音频是否暂停。
 audio.playbackRate	// 设置或返回音频播放的速度。
@@ -59,7 +59,7 @@ audio.preload		// 设置或返回音频的 preload 属性的值。
 audio.readyState	// 返回音频当前的就绪状态。
 audio.seekable		// 返回表示音频可寻址部分的 TimeRanges 对象。
 audio.seeking		// 返回用户当前是否正在音频中进行查找。
-audio.src			// 设置或返回音频的 src 属性的值。
+audio.src   		// 设置或返回音频的 src 属性的值。
 audio.textTracks	// 返回表示可用文本轨道的 TextTrackList 对象。
 audio.volume		// 设置或返回音频的音量。
 

@@ -24,9 +24,6 @@
 		height: 100%;
 background-color: #333;
 	}
-	#view.opal{
-background-color: #f9f7ec;
-	}
 /*my-files*********************************************/
 	.select-file,#cancel-file{
 		position: absolute;
@@ -55,11 +52,7 @@ color: #fff;
 	#cancel-file:hover{
 		opacity: 0.9;
 	}
-	.select-file:active{
-		line-height: 70px;
-border: solid 5px rgba(120, 120, 255, 0.5);
-	}
-	#cancel-file:active{
+	.select-file:active, #cancel-file:active{
 		line-height: 70px;
 border: solid 5px rgba(120, 120, 255, 0.5);
 	}
@@ -319,6 +312,122 @@ border-right: solid 12px #0f0;
 	#next:active::before{
 border-left: solid 12px #0f0;
 border-right: solid 0 #0f0;
+	}
+/*#view.opal*******************************************/
+	#view.opal{
+	    background-color: #f9f7ec;
+	}
+	#view.opal .select-file,#view.opal #cancel-file{
+	    background-color: #f00;
+	    color: #fff;
+	}
+	#view.opal .select-file:active,#view.opal #cancel-file:active{
+	    border: solid 5px rgba(120, 120, 255, 0.5);
+	}
+	#view.opal .my-list{
+	    background-color: rgba(255, 255, 255, .1);
+	}
+	#view.opal #list li{
+	    color: #aaa;
+	}
+	#view.opal #list li.un{
+	    color: #d55;
+	}
+	#view.opal #list li.on{
+	    background-color: rgba(255, 255, 255, .1);
+	    color: #a5ee3d;
+	}
+	#view.opal #list li:hover{
+	    background-color: rgba(255, 255, 255, .1);
+	    color: #fff;
+	}
+	#view.opal #list li.un:hover{
+	    color: #f00;
+	}
+	#view.opal #list li.on:hover{
+	    color: #a5ee3d;
+	}
+	#view.opal .my-console{
+	    background-color: rgba(255, 255, 255, .1);
+	    border-top: solid 1px #333;
+	}
+	#view.opal .mode{
+	    background-color: #fff;
+	    box-shadow: 0 0 3px #999;
+	}
+	#view.opal .mode div:nth-child(2){
+	    border-left: solid 1px #dfdfdf;
+	    border-right: solid 1px #dfdfdf;
+	}
+	#view.opal .mode div.on{
+	    box-shadow: inset 0 0 5px #fff;
+	    background-color: #eee;
+	}
+	#view.opal .mode div:hover{
+	    background-color: #eee;
+	}
+	#view.opal .range::-webkit-slider-thumb{
+	    background-color: #03a748;
+	    box-shadow: 0 0 8px #ddd;
+	}
+	#view.opal .range::-webkit-slider-runnable-track{
+	    background-color: rgba(4,154,12,0.2);
+	}
+	#view.opal .range::-moz-range-thumb{
+	    background-color: #03a748;
+	    box-shadow: 0 0 8px #ddd;
+	}
+	#view.opal .range::-moz-range-trac{
+	    background-color: rgba(4,154,12,0.2);
+	}
+	#view.opal #play-pause{
+	    border: solid 3px #fff;
+	}
+	#view.opal #play-pause::before{
+	    border-left: solid 20px #fff;
+	    border-right: solid 0 #fff;
+	}
+	#view.opal #play-pause.on::before{
+	    border-left: solid 8px #fff;
+	    border-right: solid 8px #fff;
+	}
+	#view.opal #play-pause:hover{
+	    border: solid 3px #0f0;
+	}
+	#view.opal #play-pause:active::before{
+	    border-left: solid 20px #0f0;
+	}
+	#view.opal #play-pause.on:active::before{
+	    border-left: solid 8px #0f0;
+	    border-right: solid 8px #0f0;
+	}
+	#view.opal #prev,#view.opal #next{
+	    border: solid 2px #fff;
+	}
+	#view.opal #prev::before,#view.opal #next::after{
+	    background-color: #fff;
+	}
+	#view.opal #prev::after{
+	    border-left: solid 0 #fff;
+	    border-right: solid 12px #fff;
+	}
+	#view.opal #next::before{
+	    border-left: solid 12px #fff;
+	    border-right: solid 0 #fff;
+	}
+	#view.opal #prev:hover,#view.opal #next:hover{
+	    border: solid 2px #0f0;
+	}
+	#view.opal #prev:active::before,#view.opal #next:active::after{
+	    background-color: #0f0;
+	}
+	#view.opal #prev:active::after{
+	    border-left: solid 0 #0f0;
+	    border-right: solid 12px #0f0;
+	}
+	#view.opal #next:active::before{
+	    border-left: solid 12px #0f0;
+	    border-right: solid 0 #0f0;
 	}
 /*@media***********************************************/
 	@media screen and (max-width: 780px){
@@ -612,16 +721,16 @@ App.prototype.resize = function(){
 	this.initArcData();
 };
 App.prototype.prevSong = function(){
-	console.log("prev");
+	console.log("上一首");
 	this.order = true;
 	this.play(this.currentSong-1);
 };
 App.prototype.nextSong = function(){
-	console.log("next");
+	console.log("下一首");
 	this.play(this.currentSong+1);
 };
 App.prototype.setState = function(){
-	console.log("play||pause");
+	console.log("播放||暂停");
 	var state = this.audioDom.paused;
 	if(state){
 		if(!this.audioDom.src){
@@ -635,25 +744,25 @@ App.prototype.setState = function(){
 	};
 };
 App.prototype.setVolume = function(){
-	console.log("volume");
+	console.log("调节音量");
 	var value = this.volRange.value / 100;
 	this.audioDom.volume = value;
 };
 App.prototype.setProgress = function(){
-	console.log("progress");
+	console.log("更改进度");
 	var value = this.proRange.value / 100;
 	this.audioDom.currentTime = value*this.audioDom.duration;
 };
 App.prototype.filesChange = function(){
 	if(this.inputFile.files.length == 0)return;
-	console.log("filesChange");
+	console.log("选择文件");
 	this.createList(this.inputFile.files);
 	this.cancelFiles.style.display = 'block';
 };
 App.prototype.setPlayMode = function(dom){
 	var index = parseInt(dom.getAttribute('data-i'));
 	if(this.playMode == index)return;
-	console.log('playMode '+index);
+	console.log('播放模式 '+(index == 0?'列表循环':(index==1?'单曲循环':'随机播放')));
 	this.playModeBtns[this.playMode].className = '';
 	this.playMode = index;
 	this.playModeBtns[this.playMode].className = 'on';
@@ -661,7 +770,7 @@ App.prototype.setPlayMode = function(dom){
 App.prototype.setDrawMode = function(dom){
 	var index = parseInt(dom.getAttribute('data-i'));
 	if(this.drawMode == index)return;
-	console.log('drawMode '+index);
+	console.log('渲染模式 '+(index == 0?'条形频谱':(index==1?'粒子频谱':'线条频谱')));
 	this.drawModeBtns[this.drawMode].className = '';
 	this.drawMode = index;
 	this.drawModeBtns[this.drawMode].className = 'on';
@@ -678,7 +787,7 @@ App.prototype.setDrawMode = function(dom){
 	}
 };
 App.prototype.clearFlies = function(dom){
-	console.log('clearFlies');
+	console.log('清空选择的文件');
 	this.currentSong = 0;
 	this.inputFile.value = '';
 	this.createList(this.defaultSong);
