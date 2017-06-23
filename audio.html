@@ -505,471 +505,474 @@
 		<audio id="my-audio"></audio>
 		<canvas id="my-canvas"></canvas>
 	</div>
-</body>
-<script>
-function App(){
-	this.view = document.getElementById('view');
-	this.listBox = document.getElementById('list');
-	this.prevBtn = document.getElementById('prev');
-	this.nextBtn = document.getElementById('next');
-	this.proRange = document.getElementById('pro');
-	this.volRange = document.getElementById('vol');
-	this.audioDom = document.getElementById('my-audio');
-	this.inputFile = document.getElementById('my-files');
-	this.canvasDom = document.getElementById('my-canvas');
-	this.controlBtn = document.getElementById('play-pause');
-	this.cancelFiles = document.getElementById('cancel-file');
-	this.playModeBtns = document.getElementById('play-mode').getElementsByTagName('div');
-	this.drawModeBtns = document.getElementById('draw-mode').getElementsByTagName('div');
-	this.init();
-};
-App.prototype.init = function(){
-	var self = this;
-	this.prevBtn.addEventListener('click',function(){
-		self.prevSong();
-	});
-	this.nextBtn.addEventListener('click',function(){
-		self.nextSong();
-	});
-	this.controlBtn.addEventListener('click',function(){
-		self.setState();
-	});
-	this.volRange.addEventListener('change',function(){
-		self.setVolume();
-	});
-	this.proRange.addEventListener('change',function(){
-		self.setProgress();
-	});
-	this.proRange.addEventListener('mousedown',function(){
-		self.focusPro = true;
-	});
-	this.proRange.addEventListener('mouseup',function(){
-		self.focusPro = false;
-	});
-	this.inputFile.addEventListener('change',function(){
-		self.filesChange();
-	});
-	this.cancelFiles.addEventListener('click',function(){
-		self.clearFlies();
-	});
-	for(var i=0;i<this.playModeBtns.length;i++){
-		this.playModeBtns[i].setAttribute('data-i',i);
-		this.playModeBtns[i].addEventListener('click',function(){
-			self.setPlayMode(this);
-		});
-	};
-	for(var i=0;i<this.drawModeBtns.length;i++){
-		this.drawModeBtns[i].setAttribute('data-i',i);
-		this.drawModeBtns[i].addEventListener('click',function(){
-			self.setDrawMode(this);
-		});
-	};
-	this.initCanvas();
-	this.initAudio();
-	this.initList();
-	this.resize();
-};
-App.prototype.initList = function(){
-	this.defaultSong = [
-		{
-			name: 'JPB - High.mp3',
-			src:'./music/JPB - High.mp3'
-		},
-		{
-			name: 'Panda Eyes - Love Game.mp3',
-			src:'./music/Panda Eyes - Love Game.mp3'
-		},
-		{
-			name: 'TheFatRat - Time Lapse.mp3',
-			src:'./music/TheFatRat - Time Lapse.mp3'
+	<script>
+		function App(){
+			this.view = document.getElementById('view');
+			this.listBox = document.getElementById('list');
+			this.prevBtn = document.getElementById('prev');
+			this.nextBtn = document.getElementById('next');
+			this.proRange = document.getElementById('pro');
+			this.volRange = document.getElementById('vol');
+			this.audioDom = document.getElementById('my-audio');
+			this.inputFile = document.getElementById('my-files');
+			this.canvasDom = document.getElementById('my-canvas');
+			this.controlBtn = document.getElementById('play-pause');
+			this.cancelFiles = document.getElementById('cancel-file');
+			this.playModeBtns = document.getElementById('play-mode').getElementsByTagName('div');
+			this.drawModeBtns = document.getElementById('draw-mode').getElementsByTagName('div');
+			this.init();
+		};
+		App.prototype.init = function(){
+			var self = this;
+			this.prevBtn.addEventListener('click',function(){
+				self.prevSong();
+			});
+			this.nextBtn.addEventListener('click',function(){
+				self.nextSong();
+			});
+			this.controlBtn.addEventListener('click',function(){
+				self.setState();
+			});
+			this.volRange.addEventListener('change',function(){
+				self.setVolume();
+			});
+			this.proRange.addEventListener('change',function(){
+				self.setProgress();
+			});
+			this.proRange.addEventListener('mousedown',function(){
+				self.focusPro = true;
+			});
+			this.proRange.addEventListener('mouseup',function(){
+				self.focusPro = false;
+			});
+			this.inputFile.addEventListener('change',function(){
+				self.filesChange();
+			});
+			this.cancelFiles.addEventListener('click',function(){
+				self.clearFlies();
+			});
+			for(var i=0;i<this.playModeBtns.length;i++){
+				this.playModeBtns[i].setAttribute('data-i',i);
+				this.playModeBtns[i].addEventListener('click',function(){
+					self.setPlayMode(this);
+				});
+			};
+			for(var i=0;i<this.drawModeBtns.length;i++){
+				this.drawModeBtns[i].setAttribute('data-i',i);
+				this.drawModeBtns[i].addEventListener('click',function(){
+					self.setDrawMode(this);
+				});
+			};
+			this.initCanvas();
+			this.initAudio();
+			this.initList();
+			this.resize();
+		};
+		App.prototype.initList = function(){
+			this.defaultSong = [
+				{
+					name: 'JPB - High.mp3',
+					src:'./music/JPB - High.mp3'
+				},
+				{
+					name: 'Panda Eyes - Love Game.mp3',
+					src:'./music/Panda Eyes - Love Game.mp3'
+				},
+				{
+					name: 'TheFatRat - Time Lapse.mp3',
+					src:'./music/TheFatRat - Time Lapse.mp3'
+				}
+			];
+			this.createList(this.defaultSong);
 		}
-	];
-	this.createList(this.defaultSong);
-}
-App.prototype.initAudio = function(){
-	var self = this;
-	this.playMode = 0;
-	this.currentSong = 0;
-	this.interval = undefined;
-	this.audioContext = new AudioContext();
-	this.analyser = this.audioContext.createAnalyser();
-	this.sources = this.audioContext.createMediaElementSource(this.audioDom);
-	this.sources.connect(this.analyser);
-	this.analyser.connect(this.audioContext.destination);
-	this.analyser.fftSize = 512;
-	this.bufferLenght = this.analyser.frequencyBinCount;
-	this.frequencyData = new Uint8Array(this.bufferLenght);
-	this.audioDom.onloadstart = function(){
-		console.log("开始加载");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.ondurationchange = function(){
-		console.log("媒体时长改变");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.onloadedmetadata = function(){
-		console.log("元数据加载完成");
-	};
-	this.audioDom.onloadeddata = function(){
-		console.log("当前帧加载完成");
-	};
-	this.audioDom.onprogress = function(){
-		console.log("下载指定的数据");
-	};
-	this.audioDom.oncanplay = function(){
-		console.log("可以开始播放");
-		self.audioDom.play();
-	};
-	this.audioDom.oncanplaythrough = function(){
-		console.log("可以正常播放且无需停顿");
-	};
-	this.audioDom.onended = function(){
-		console.log("播放结束");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-		if(self.playMode == 0){
-			self.play(self.currentSong+1);
-		}else if(self.playMode == 1){
-			self.play(self.currentSong);
-		}else{
-			var files = self.inputFile.files;
-			var index = Math.random();
-			if(files.length == 0){
-				index = Math.round(index*self.defaultSong.length);
+		App.prototype.initAudio = function(){
+			var self = this;
+			this.playMode = 0;
+			this.currentSong = 0;
+			this.interval = undefined;
+			this.audioContext = new AudioContext();
+			this.analyser = this.audioContext.createAnalyser();
+			this.sources = this.audioContext.createMediaElementSource(this.audioDom);
+			this.sources.connect(this.analyser);
+			this.analyser.connect(this.audioContext.destination);
+			this.analyser.fftSize = 512;
+			this.bufferLenght = this.analyser.frequencyBinCount;
+			this.frequencyData = new Uint8Array(this.bufferLenght);
+			this.audioDom.onloadstart = function(){
+				console.log("开始加载");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+			};
+			this.audioDom.ondurationchange = function(){
+				console.log("媒体时长改变");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+			};
+			this.audioDom.onloadedmetadata = function(){
+				console.log("元数据加载完成");
+			};
+			this.audioDom.onloadeddata = function(){
+				console.log("当前帧加载完成");
+			};
+			this.audioDom.onprogress = function(){
+				console.log("下载指定的数据");
+			};
+			this.audioDom.oncanplay = function(){
+				console.log("可以开始播放");
+				self.audioDom.play();
+			};
+			this.audioDom.oncanplaythrough = function(){
+				console.log("可以正常播放且无需停顿");
+			};
+			this.audioDom.onended = function(){
+				console.log("播放结束");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+				if(self.playMode == 0){
+					self.play(self.currentSong+1);
+				}else if(self.playMode == 1){
+					self.play(self.currentSong);
+				}else{
+					var files = self.inputFile.files;
+					var index = Math.random();
+					if(files.length == 0){
+						index = Math.round(index*self.defaultSong.length);
+					}else{
+						index = Math.round(index*files.length);
+					};
+					index = index == self.currentSong ? (index + 1) : index;
+					self.play(index);
+				};
+			};
+			this.audioDom.onerror = function(){
+				console.log("数据加载出错");
+				self.controlBtn.className = '';
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+				self.play(self.currentSong+1);
+			};
+			this.audioDom.onpause = function(){
+				console.log("暂停");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+			};
+			this.audioDom.onplay = function(){
+				console.log("准备开始播放");
+			};
+			this.audioDom.onplaying = function(){
+				console.log("播放中");
+				self.draw();
+				self.order = false;
+				self.controlBtn.className = 'on';
+				self.interval = setInterval(function(){
+					if(!self.focusPro){
+						var pro = self.audioDom.currentTime / self.audioDom.duration;
+						self.proRange.value = pro*100;
+					};
+				},1000);
+			};
+			this.audioDom.onratechange = function(){
+				console.log("播放速度发生改变");
+			};
+			this.audioDom.onseeked = function(){
+				console.log("完成定位播放位置");
+			};
+			this.audioDom.onseeking = function(){
+				console.log("开始定位播放位置");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+			};
+			this.audioDom.onvolumechange = function(){
+				console.log("音量发生改变");
+			};
+			this.audioDom.onwaiting = function(){
+				console.log("播放下一帧需要缓冲");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+			};
+			this.audioDom.onstalled = function(){
+				console.log("获取数据且数据不可用");
+			};
+			this.audioDom.onsuspend = function(){
+				console.log("读取数据中止");
+			};
+			this.audioDom.onemptied = function(){
+				console.log("复位到初始状态");
+				clearInterval(self.interval);
+				cancelAnimationFrame(self.animation);
+			};
+			this.audioDom.onencrypted = function(){
+				console.log("遇到加密的数据");
+			};
+		};
+		App.prototype.initCanvas = function(){
+			this.drawMode = 0;
+			this.context = this.canvasDom.getContext("2d");
+			this.animation = undefined;
+		};
+		App.prototype.resize = function(){
+			this.viewSize = {
+				width: this.view.offsetWidth,
+				height: this.view.offsetHeight
+			};
+			this.canvasDom.width = this.viewSize.width;
+			this.canvasDom.height = this.viewSize.height;
+			this.initRectData();
+			this.initArcData();
+		};
+		App.prototype.prevSong = function(){
+			console.log("上一首");
+			this.order = true;
+			this.play(this.currentSong-1);
+		};
+		App.prototype.nextSong = function(){
+			console.log("下一首");
+			this.play(this.currentSong+1);
+		};
+		App.prototype.setState = function(){
+			console.log("播放||暂停");
+			var state = this.audioDom.paused;
+			if(state){
+				if(!this.audioDom.src){
+					this.play(0);
+				}else{
+					this.audioDom.play();
+				};
 			}else{
-				index = Math.round(index*files.length);
+				this.audioDom.pause();
+				this.controlBtn.className = '';
 			};
-			index = index == self.currentSong ? (index + 1) : index;
-			self.play(index);
 		};
-	};
-	this.audioDom.onerror = function(){
-		console.log("数据加载出错");
-		self.controlBtn.className = '';
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.onpause = function(){
-		console.log("暂停");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.onplay = function(){
-		console.log("准备开始播放");
-	};
-	this.audioDom.onplaying = function(){
-		console.log("播放中");
-		self.draw();
-		self.order = false;
-		self.controlBtn.className = 'on';
-		self.interval = setInterval(function(){
-			if(!self.focusPro){
-				var pro = self.audioDom.currentTime / self.audioDom.duration;
-				self.proRange.value = pro*100;
+		App.prototype.setVolume = function(){
+			console.log("调节音量");
+			var value = this.volRange.value / 100;
+			this.audioDom.volume = value;
+		};
+		App.prototype.setProgress = function(){
+			console.log("更改进度");
+			var value = this.proRange.value / 100;
+			this.audioDom.currentTime = value*this.audioDom.duration;
+		};
+		App.prototype.filesChange = function(){
+			if(this.inputFile.files.length == 0)return;
+			console.log("选择文件");
+			this.createList(this.inputFile.files);
+			this.cancelFiles.style.display = 'block';
+		};
+		App.prototype.setPlayMode = function(dom){
+			var index = parseInt(dom.getAttribute('data-i'));
+			if(this.playMode == index)return;
+			console.log('播放模式 '+(index == 0?'列表循环':(index==1?'单曲循环':'随机播放')));
+			this.playModeBtns[this.playMode].className = '';
+			this.playMode = index;
+			this.playModeBtns[this.playMode].className = 'on';
+		};
+		App.prototype.setDrawMode = function(dom){
+			var index = parseInt(dom.getAttribute('data-i'));
+			if(this.drawMode == index)return;
+			console.log('渲染模式 '+(index == 0?'条形频谱':(index==1?'粒子频谱':'线条频谱')));
+			this.drawModeBtns[this.drawMode].className = '';
+			this.drawMode = index;
+			this.drawModeBtns[this.drawMode].className = 'on';
+			switch(index){
+				case 0:
+					this.view.className = '';
+					break;
+				case 1:
+					this.view.className = 'opal';
+					break;
+				case 2:
+					this.view.className = '';
+					break;
+			}
+		};
+		App.prototype.clearFlies = function(dom){
+			console.log('清空选择的文件');
+			this.currentSong = 0;
+			this.inputFile.value = '';
+			this.createList(this.defaultSong);
+			this.cancelFiles.style.display = 'none';
+		};
+		App.prototype.play = function(index){
+			index = this.testPlayIndex(parseInt(index));
+			if(this.listArray[this.currentSong].className != 'un'){
+				this.listArray[this.currentSong].className = '';
+			}
+			this.currentSong = index;
+			this.listArray[this.currentSong].className = 'on';
+			var files = this.inputFile.files;
+			if(files.length == 0){
+				this.audioDom.src = this.defaultSong[index].src;
+			}else{
+				this.audioDom.src = window.URL.createObjectURL(files[index]);
 			};
-		},1000);
-	};
-	this.audioDom.onratechange = function(){
-		console.log("播放速度发生改变");
-	};
-	this.audioDom.onseeked = function(){
-		console.log("完成定位播放位置");
-	};
-	this.audioDom.onseeking = function(){
-		console.log("开始定位播放位置");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.onvolumechange = function(){
-		console.log("音量发生改变");
-	};
-	this.audioDom.onwaiting = function(){
-		console.log("播放下一帧需要缓冲");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.onstalled = function(){
-		console.log("获取数据且数据不可用");
-	};
-	this.audioDom.onsuspend = function(){
-		console.log("读取数据中止");
-	};
-	this.audioDom.onemptied = function(){
-		console.log("复位到初始状态");
-		clearInterval(self.interval);
-		cancelAnimationFrame(self.animation);
-	};
-	this.audioDom.onencrypted = function(){
-		console.log("遇到加密的数据");
-	};
-};
-App.prototype.initCanvas = function(){
-	this.drawMode = 0;
-	this.context = this.canvasDom.getContext("2d");
-	this.animation = undefined;
-};
-App.prototype.resize = function(){
-	this.viewSize = {
-		width: this.view.offsetWidth,
-		height: this.view.offsetHeight
-	};
-	this.canvasDom.width = this.viewSize.width;
-	this.canvasDom.height = this.viewSize.height;
-	this.initRectData();
-	this.initArcData();
-};
-App.prototype.prevSong = function(){
-	console.log("上一首");
-	this.order = true;
-	this.play(this.currentSong-1);
-};
-App.prototype.nextSong = function(){
-	console.log("下一首");
-	this.play(this.currentSong+1);
-};
-App.prototype.setState = function(){
-	console.log("播放||暂停");
-	var state = this.audioDom.paused;
-	if(state){
-		if(!this.audioDom.src){
-			this.play(0);
-		}else{
-			this.audioDom.play();
 		};
-	}else{
-		this.audioDom.pause();
-		this.controlBtn.className = '';
-	};
-};
-App.prototype.setVolume = function(){
-	console.log("调节音量");
-	var value = this.volRange.value / 100;
-	this.audioDom.volume = value;
-};
-App.prototype.setProgress = function(){
-	console.log("更改进度");
-	var value = this.proRange.value / 100;
-	this.audioDom.currentTime = value*this.audioDom.duration;
-};
-App.prototype.filesChange = function(){
-	if(this.inputFile.files.length == 0)return;
-	console.log("选择文件");
-	this.createList(this.inputFile.files);
-	this.cancelFiles.style.display = 'block';
-};
-App.prototype.setPlayMode = function(dom){
-	var index = parseInt(dom.getAttribute('data-i'));
-	if(this.playMode == index)return;
-	console.log('播放模式 '+(index == 0?'列表循环':(index==1?'单曲循环':'随机播放')));
-	this.playModeBtns[this.playMode].className = '';
-	this.playMode = index;
-	this.playModeBtns[this.playMode].className = 'on';
-};
-App.prototype.setDrawMode = function(dom){
-	var index = parseInt(dom.getAttribute('data-i'));
-	if(this.drawMode == index)return;
-	console.log('渲染模式 '+(index == 0?'条形频谱':(index==1?'粒子频谱':'线条频谱')));
-	this.drawModeBtns[this.drawMode].className = '';
-	this.drawMode = index;
-	this.drawModeBtns[this.drawMode].className = 'on';
-	switch(index){
-		case 0:
-			this.view.className = '';
-			break;
-		case 1:
-			this.view.className = 'opal';
-			break;
-		case 2:
-			this.view.className = '';
-			break;
-	}
-};
-App.prototype.clearFlies = function(dom){
-	console.log('清空选择的文件');
-	this.currentSong = 0;
-	this.inputFile.value = '';
-	this.createList(this.defaultSong);
-	this.cancelFiles.style.display = 'none';
-};
-App.prototype.play = function(index){
-	index = this.testPlayIndex(parseInt(index));
-	this.listArray[this.currentSong].className = '';
-	this.currentSong = index;
-	this.listArray[this.currentSong].className = 'on';
-	var files = this.inputFile.files;
-	if(files.length == 0){
-		this.audioDom.src = this.defaultSong[index].src;
-	}else{
-		this.audioDom.src = window.URL.createObjectURL(files[index]);
-	};
-};
-App.prototype.createList = function(files){
-	var self = this;
-	this.listBox.innerHTML = '';
-	this.listArray = [];
-	for(var i=0;i<files.length;i++){
-		var li = document.createElement('li');
-		var name = files[i].name.split('.');
-		var format = name.pop().toUpperCase();
-		name = name.join('.');
-		if(	format == 'MP3' || format == 'WAV' ||
-			format == 'AAC' || format == 'M4R' ||
-			format == 'OGG' || format == 'FLAC'
-		){
-			li.setAttribute('title',name);
-			li.setAttribute('data-i',i);
-		}else{
-			li.className = "un";
-			li.setAttribute('title',name+'(不支持'+format+'格式的文件)');
-			li.setAttribute('data-i',i);
-		};
-		li.innerText = name;
-		li.addEventListener('click',function(){
-			self.play(this.getAttribute('data-i'));
-		});
-		this.listBox.appendChild(li);
-		this.listArray.push(li);
-	};
-};
-App.prototype.testPlayIndex = function(index){
-	var files = this.inputFile.files;
-	if(files.length == 0){
-		if(index >= this.defaultSong.length){
-			index = 0;
-		}else if(index < 0){
-			index = this.defaultSong.length-1;
-		};
-	}else{
-		if(index >= files.length){
-			index = 0;
-		}else if(index < 0){
-			index = files.length-1;
-		};
-	};
-	if(this.listArray[index].className == 'un'){
-		if(this.order){
-			return this.testPlayIndex(index-1);
-		}else{
-			return this.testPlayIndex(index+1);
-		};
-	}else{
-		return index;
-	};
-};
-App.prototype.initRectData = function(){
-	this.meterNum = Math.floor(this.viewSize.width / 12);
-	this.step = Math.round(this.bufferLenght / this.meterNum);
-	this.ratio = {
-		top:this.viewSize.height * .382 / 255,
-		bottom:this.viewSize.height * .618 / 255
-	};
-	this.capArray = [];
-	for(var i=0;i<this.meterNum;i++){
-		this.capArray.push(0);
-	};
-	this.lg = this.context.createLinearGradient(0,0,0,this.viewSize.height);
-	this.lg.addColorStop(0, 'rgb(0,0,255)');
-	this.lg.addColorStop(0.5, 'rgb(0,255,0)');
-	this.lg.addColorStop(1, 'rgb(255,0,0)');
-};
-App.prototype.drawRect = function(array){
-	this.context.fillStyle = this.lg;
-	for(var i=0;i<this.meterNum;i++){
-		var value = array[i * this.step];
-		value = value  ? value : 1;
-		this.context.beginPath();
-		if(value < this.capArray[i]){
-			if(this.capArray[i] > 0){
-				this.context.fillRect(i * 12,this.viewSize.height - (this.capArray[i]--) * this.ratio.bottom - 2,10,2);
-				this.context.fillRect(this.viewSize.width - (i + 1) * 12,(this.capArray[i]--) * this.ratio.top,10,2);
+		App.prototype.createList = function(files){
+			var self = this;
+			this.listBox.innerHTML = '';
+			this.listArray = [];
+			for(var i=0;i<files.length;i++){
+				var li = document.createElement('li');
+				var name = files[i].name.split('.');
+				var format = name.pop().toUpperCase();
+				name = name.join('.');
+				if(	format == 'MP3' || format == 'WAV' ||
+					format == 'AAC' || format == 'M4R' ||
+					format == 'OGG' || format == 'FLAC'
+				){
+					li.setAttribute('title',name);
+					li.setAttribute('data-i',i);
+				}else{
+					li.className = "un";
+					li.setAttribute('title',name+'(不支持'+format+'格式的文件)');
+					li.setAttribute('data-i',i);
+				};
+				li.innerText = name;
+				li.addEventListener('click',function(){
+					self.play(this.getAttribute('data-i'));
+				});
+				this.listBox.appendChild(li);
+				this.listArray.push(li);
 			};
-		}else{
-			this.context.fillRect(i * 12,this.viewSize.height - value * this.ratio.bottom,10,2);
-			this.context.fillRect(this.viewSize.width - (i + 1) * 12,value * this.ratio.top,10,2);
-			this.capArray[i] = value;
 		};
-		this.context.fillRect(i * 12,this.viewSize.height - value * this.ratio.bottom,10,value * this.ratio.bottom);
-		this.context.fillRect(this.viewSize.width - (i + 1) * 12,0,10,value * this.ratio.top);
-		this.context.closePath();
-	};
-};
-App.prototype.initArcData = function(){
-	this.arcArray=[];
-	this.tick = 0;
-	for(var i=0;i<this.bufferLenght;i++){
-		var arcObj = {
-			x:Math.random() * (this.viewSize.width + 120) - 60,
-			y:this.viewSize.height,
-			size:0,
-			velocity:2 - Math.random() * 4
+		App.prototype.testPlayIndex = function(index){
+			var files = this.inputFile.files;
+			if(files.length == 0){
+				if(index >= this.defaultSong.length){
+					index = 0;
+				}else if(index < 0){
+					index = this.defaultSong.length-1;
+				};
+			}else{
+				if(index >= files.length){
+					index = 0;
+				}else if(index < 0){
+					index = files.length-1;
+				};
+			};
+			if(this.listArray[index].className == 'un'){
+				if(this.order){
+					return this.testPlayIndex(index-1);
+				}else{
+					return this.testPlayIndex(index+1);
+				};
+			}else{
+				return index;
+			};
 		};
-		this.arcArray.push(arcObj);
-	};
-};
-App.prototype.drawArc = function(array){
-	this.tick++;
-	if(this.tick == 314){this.tick = -this.tick};
-	for(var i=0;i<this.bufferLenght;i++){
-		this.arcArray[i].x += (this.arcArray[i].velocity + Math.sin(this.tick * 0.01) * 1.5);
-		this.arcArray[i].y -= Math.pow(array[i] * 0.01,2);
-		this.arcArray[i].size = array[i] * 0.2 + 5;
-		if(	this.arcArray[i].y < -this.arcArray[i].size ||
-			this.arcArray[i].x < -60 ||
-			this.arcArray[i].x > this.viewSize.width + 60
-		){
-			this.arcArray[i].x=Math.random() * (this.viewSize.width + 120) - 60;
-			this.arcArray[i].y=this.viewSize.height + array[i] * 0.2 + 5;
-			this.arcArray[i].size = array[i] * 0.2 + 5;
-			this.arcArray[i].velocity = 2 - Math.random() * 4;
+		App.prototype.initRectData = function(){
+			this.meterNum = Math.floor(this.viewSize.width / 12);
+			this.step = Math.round(this.bufferLenght / this.meterNum);
+			this.ratio = {
+				top:this.viewSize.height * .382 / 255,
+				bottom:this.viewSize.height * .618 / 255
+			};
+			this.capArray = [];
+			for(var i=0;i<this.meterNum;i++){
+				this.capArray.push(0);
+			};
+			this.lg = this.context.createLinearGradient(0,0,0,this.viewSize.height);
+			this.lg.addColorStop(0, 'rgb(0,0,255)');
+			this.lg.addColorStop(0.5, 'rgb(0,255,0)');
+			this.lg.addColorStop(1, 'rgb(255,0,0)');
 		};
-		this.context.beginPath();
-		this.context.fillStyle = 'hsla('+ (i/this.bufferLenght*300+Math.abs(this.tick)/314*60) +','+array[i]*0.35+'%,50%,'+array[i]*0.003+')';
-		this.context.arc(this.arcArray[i].x,this.arcArray[i].y,this.arcArray[i].size,0,360);
-		this.context.closePath();
-		this.context.fill();
-	};
-};
-App.prototype.drawLine = function(array){
-	this.context.beginPath();
-	this.context.strokeStyle = 'rgb(0,255,0)';
-	this.context.moveTo(0,this.viewSize.height/2);
-	for (var i = 0; i < this.meterNum; i++) {
-		var value = 0;
-		if(i % 2 == 0){
-			value = array[i * this.step / 2];
-			this.context.lineTo((i+1)*12,this.viewSize.height/2-value);
-		}else{
-			value = array[this.meterNum - i];
-			this.context.lineTo((i+1)*12,this.viewSize.height/2+value);
+		App.prototype.drawRect = function(array){
+			this.context.fillStyle = this.lg;
+			for(var i=0;i<this.meterNum;i++){
+				var value = array[i * this.step];
+				value = value  ? value : 1;
+				this.context.beginPath();
+				if(value < this.capArray[i]){
+					if(this.capArray[i] > 0){
+						this.context.fillRect(i * 12,this.viewSize.height - (this.capArray[i]--) * this.ratio.bottom - 2,10,2);
+						this.context.fillRect(this.viewSize.width - (i + 1) * 12,(this.capArray[i]--) * this.ratio.top,10,2);
+					};
+				}else{
+					this.context.fillRect(i * 12,this.viewSize.height - value * this.ratio.bottom,10,2);
+					this.context.fillRect(this.viewSize.width - (i + 1) * 12,value * this.ratio.top,10,2);
+					this.capArray[i] = value;
+				};
+				this.context.fillRect(i * 12,this.viewSize.height - value * this.ratio.bottom,10,value * this.ratio.bottom);
+				this.context.fillRect(this.viewSize.width - (i + 1) * 12,0,10,value * this.ratio.top);
+				this.context.closePath();
+			};
 		};
-	};
-	this.context.lineTo(this.viewSize.width,this.viewSize.height/2);
-	this.context.stroke();
-	this.context.closePath();
-};
-App.prototype.draw = function(){
-	this.analyser.getByteFrequencyData(this.frequencyData);
-	this.context.clearRect(0,0,this.viewSize.width,this.viewSize.height);
-	switch(this.drawMode){
-		case 0:
-			this.drawRect(this.frequencyData);
-			break;
-		case 1:
-			this.drawArc(this.frequencyData);
-			break;
-		case 2:
-			this.drawLine(this.frequencyData);
-			break;
-	};
-	this.animation = requestAnimationFrame(this.draw.bind(this));
-};
-window.onload = function(){
-	var app = new App;
-	window.onresize = function(){
-		app.resize();
-	};
-};
-</script>
+		App.prototype.initArcData = function(){
+			this.arcArray=[];
+			this.tick = 0;
+			for(var i=0;i<this.bufferLenght;i++){
+				var arcObj = {
+					x:Math.random() * (this.viewSize.width + 120) - 60,
+					y:this.viewSize.height,
+					size:0,
+					velocity:2 - Math.random() * 4
+				};
+				this.arcArray.push(arcObj);
+			};
+		};
+		App.prototype.drawArc = function(array){
+			this.tick++;
+			if(this.tick == 314){this.tick = -this.tick};
+			for(var i=0;i<this.bufferLenght;i++){
+				this.arcArray[i].x += (this.arcArray[i].velocity + Math.sin(this.tick * 0.01) * 1.5);
+				this.arcArray[i].y -= Math.pow(array[i] * 0.01,2);
+				this.arcArray[i].size = array[i] * 0.2 + 5;
+				if(	this.arcArray[i].y < -this.arcArray[i].size ||
+					this.arcArray[i].x < -60 ||
+					this.arcArray[i].x > this.viewSize.width + 60
+				){
+					this.arcArray[i].x=Math.random() * (this.viewSize.width + 120) - 60;
+					this.arcArray[i].y=this.viewSize.height + array[i] * 0.2 + 5;
+					this.arcArray[i].size = array[i] * 0.2 + 5;
+					this.arcArray[i].velocity = 2 - Math.random() * 4;
+				};
+				this.context.beginPath();
+				this.context.fillStyle = 'hsla('+ (i/this.bufferLenght*300+Math.abs(this.tick)/314*60) +','+array[i]*0.35+'%,50%,'+array[i]*0.003+')';
+				this.context.arc(this.arcArray[i].x,this.arcArray[i].y,this.arcArray[i].size,0,360);
+				this.context.closePath();
+				this.context.fill();
+			};
+		};
+		App.prototype.drawLine = function(array){
+			this.context.beginPath();
+			this.context.strokeStyle = 'rgb(0,255,0)';
+			this.context.moveTo(0,this.viewSize.height/2);
+			for (var i = 0; i < this.meterNum; i++) {
+				var value = 0;
+				if(i % 2 == 0){
+					value = array[i * this.step / 2];
+					this.context.lineTo((i+1)*12,this.viewSize.height/2-value);
+				}else{
+					value = array[this.meterNum - i];
+					this.context.lineTo((i+1)*12,this.viewSize.height/2+value);
+				};
+			};
+			this.context.lineTo(this.viewSize.width,this.viewSize.height/2);
+			this.context.stroke();
+			this.context.closePath();
+		};
+		App.prototype.draw = function(){
+			this.analyser.getByteFrequencyData(this.frequencyData);
+			this.context.clearRect(0,0,this.viewSize.width,this.viewSize.height);
+			switch(this.drawMode){
+				case 0:
+					this.drawRect(this.frequencyData);
+					break;
+				case 1:
+					this.drawArc(this.frequencyData);
+					break;
+				case 2:
+					this.drawLine(this.frequencyData);
+					break;
+			};
+			this.animation = requestAnimationFrame(this.draw.bind(this));
+		};
+		window.onload = function(){
+			var app = new App;
+			window.onresize = function(){
+				app.resize();
+			};
+		};
+	</script>
+</body>
 </html>
